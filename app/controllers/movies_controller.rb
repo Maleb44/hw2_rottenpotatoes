@@ -6,8 +6,27 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
+  def get_sort_param(params)
+    if params.has_key?("sort")
+      case params["sort"]
+        when /^(title|release_date)(:(desc|asc)){0,1}$/
+          return params["sort"].gsub(/[:]/, " ")
+        else
+          return ""
+      end
+    else
+      return ""
+    end
+  end
+
   def index
-    @movies = Movie.all
+  ##???   @all_ratings = Movie.getRaitingList
+    @sortParam = get_sort_param(params)
+    if @sortParam != ""
+      @movies = Movie.order(@sortParam).all
+    else
+      @movies = Movie.all
+    end
   end
 
   def new
