@@ -6,27 +6,35 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
-  def get_sort_param(params)
-    if params.has_key?("sort")
-      case params["sort"]
-        when /^(title|release_date)(:(desc|asc)){0,1}$/
-          return params["sort"].gsub(/[:]/, " ")
-        else
-          return ""
-      end
-    else
-      return ""
-    end
-  end
-
   def index
-  ##???   @all_ratings = Movie.getRaitingList
-    @sortParam = get_sort_param(params)
-    if @sortParam != ""
-      @movies = Movie.order(@sortParam).all
-    else
-      @movies = Movie.all
+    sort = params[:sort]
+    @sort = sort
+    if (params[:sort])
+      session[:sort] = sort
     end
+
+    @filter_ratings = []
+    @filter_ratings_hash = {}
+    if (params[:ratings])# || session[:ratings])
+       #if (!params[:ratings])
+       #  params[:ratings] = session[:ratings]
+       #end
+
+       params[:ratings].each_key { |keyr| 
+         @filter_ratings.push(keyr)
+         @filter_ratings_hash[keyr] = keyr 
+       }
+       @movies = Movie.find(:all, :order=>sort, :conditions => {:rating => @filter_ratings})
+       session[:ratings] = @filter_ratings_hash
+    else
+       if (session[:ratings])
+         flash.keep
+         redirect_to movies_path(:sort=>session[:sort], :ratings=>session[:ratings])
+       end
+       @movies = Movie.all(:order=>sort)
+    end
+
+    @all_ratings = ['G','PG','PG-13','R']
   end
 
   def new
