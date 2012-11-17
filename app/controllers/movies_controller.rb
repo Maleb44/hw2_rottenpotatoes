@@ -34,7 +34,8 @@ class MoviesController < ApplicationController
        @movies = Movie.all(:order=>sort)
     end
 
-    @all_ratings = ['G','PG','PG-13','R']
+ ##   @all_ratings = ['G','PG','PG-13','R']
+    @all_ratings = ['G','PG','PG-13','R','NC-17']
   end
 
   def new
